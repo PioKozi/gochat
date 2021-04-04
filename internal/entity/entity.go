@@ -11,6 +11,7 @@ import (
 
 // A node
 type Entity struct {
+	Nick          string   // the nick/name given to this node/user
 	Socket        string   // the socket on which the entity resides
 	KnownEntities []string // the entities which the entity knows
 }
@@ -18,6 +19,7 @@ type Entity struct {
 // Constructs a new node/entity and returns it
 func NewEntity(socket string) Entity {
 	return Entity{
+		Nick:          socket,
 		Socket:        socket,
 		KnownEntities: make([]string, 0),
 	}
@@ -32,6 +34,12 @@ func (N *Entity) Introduce(socket string) {
 	} else {
 		N.KnownEntities = append(N.KnownEntities, socket)
 	}
+}
+
+// Changes the nick of the entity and informs all other known entities
+func (N *Entity) ChangeNick(newnick string) {
+	N.SendAll(fmt.Sprintf("*** %s is now known as %s ***\n", N.Nick, newnick))
+	N.Nick = newnick
 }
 
 func (N *Entity) Forget(socket string) {
@@ -67,11 +75,11 @@ func (N Entity) Listen() {
 }
 
 // Send msg to every socket in KnownEntities
-func (N Entity) Send(msg string) {
+func (N Entity) SendAll(msg string) {
 	for _, socket := range N.KnownEntities {
 		conn, err := net.Dial("tcp", socket)
 		if err == nil {
-			fmt.Fprintf(conn, "%s> %s", N.Socket, msg)
+			fmt.Fprintf(conn, "%s> %s", N.Nick, msg)
 			conn.Close()
 		}
 	}

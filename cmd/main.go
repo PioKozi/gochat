@@ -28,8 +28,10 @@ func main() {
 			ent.Introduce(fields[1])
 		case "/forget":
 			ent.Forget(fields[1])
+		case "/nick":
+			ent.ChangeNick(strings.Join(fields[1:], " "))
 		default:
-			ent.Send(msg)
+			ent.SendAll(msg)
 		}
 	}
 }
