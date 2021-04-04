@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strings"
 
@@ -18,10 +19,26 @@ func main() {
 	for {
 		msg, _ := reader.ReadString('\n')
 		fields := strings.Fields(msg)
-		if fields[0] == "/introduce" {
-			ent.AddKnown(fields[1])
-		} else {
+		switch fields[0] {
+		case "/help":
+			fmt.Println(helpDisplay)
+		case "/quit":
+			return
+		case "/introduce":
+			ent.Introduce(fields[1])
+		case "/forget":
+			ent.Forget(fields[1])
+		default:
 			ent.Send(msg)
 		}
 	}
 }
+
+const helpDisplay = `
+---
+/help                   displays this help
+/introduce <socket>     allows to send messages on a socket, if it is present
+/forget <socket>        opposite of /introduce
+/quit                   exits
+---
+`

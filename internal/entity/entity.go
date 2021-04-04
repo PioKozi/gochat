@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/piokozi/gochat/pkg/common"
 )
@@ -22,10 +23,26 @@ func NewEntity(socket string) Entity {
 	}
 }
 
-// Adds socket to KnownEntities with value pubkey
-// This can also be used to overwrite the known public key of a known entity
-func (N *Entity) AddKnown(socket string) {
-	N.KnownEntities = append(N.KnownEntities, socket)
+// Adds socket to N.KnownEntities
+func (N *Entity) Introduce(socket string) {
+	conn, err := net.DialTimeout("tcp", socket, time.Millisecond*5)
+	if err != nil {
+		fmt.Println("*** Socket is not listening ***")
+		conn.Close()
+	} else {
+		N.KnownEntities = append(N.KnownEntities, socket)
+	}
+}
+
+func (N *Entity) Forget(socket string) {
+	for i, v := range N.KnownEntities {
+		if v == socket {
+			N.KnownEntities[i] = N.KnownEntities[len(N.KnownEntities)-1]
+			N.KnownEntities = N.KnownEntities[:len(N.KnownEntities)-1]
+			return
+		}
+	}
+	fmt.Println("*** No such known socket ***")
 }
 
 // Sets up a listener on socket
