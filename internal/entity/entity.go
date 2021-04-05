@@ -30,9 +30,9 @@ func (N *Entity) Introduce(socket string) {
 	conn, err := net.DialTimeout("tcp", socket, time.Millisecond*5)
 	if err != nil {
 		fmt.Println("*** Socket is not listening ***")
-		conn.Close()
 	} else {
 		N.KnownEntities = append(N.KnownEntities, socket)
+		conn.Close()
 	}
 }
 
